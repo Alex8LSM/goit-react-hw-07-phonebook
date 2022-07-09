@@ -1,0 +1,32 @@
+.form {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  padding: 10px 70px;
+}
+.label {
+  display: flex;
+  flex-direction: row;
+  margin-bottom: 10px;
+  font-family: roboto;
+  font-weight: 700;
+  font-size: 20px;
+}
+.labelTitle {
+  min-width: 70px;
+  text-align: right;
+}
+.input {
+  margin-left: 10px;
+}
+.button {
+  width: 100px;
+  font-weight: 700;
+  border: none;
+  border-radius: 5px;
+}
+.button:hover {
+  box-shadow: 0px -0px 10px 5px #6e6e6e;
+  background-color: aquamarine;
+}
