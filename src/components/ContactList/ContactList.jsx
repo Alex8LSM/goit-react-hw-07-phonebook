@@ -1,44 +1,48 @@
-import { useEffect } from 'react';
 import ContactItem from '../ContactItem/ContactItem';
-import { useSelector, useDispatch } from 'react-redux';
-import * as operations from '../../redux/operations';
-import { getVisibleContacts, getError } from '../../redux/selectors';
+import { useSelector } from 'react-redux';
+import { useDeleteContactMutation } from 'api/contactsApi';
+import { getVisibleContacts, getFilter } from '../../redux/selectors';
+import { useGetContactsQuery } from '../../api/contactsApi';
 import Loader from '../Loader/Loader';
+import s from './ContactList.module.css';
+
 const ContactList = () => {
-  const contacts = useSelector(getVisibleContacts);
-  const error = useSelector(getError);
-  const dispatch = useDispatch();
-  const onDeleteContact = id => dispatch(operations.deleteContact(id));
-  useEffect(() => {
-    dispatch(operations.fetchContacts());
-  }, [dispatch]);
-  if (contacts.length > 0 && !error) {
-    return (
-      <ul>
-        {contacts.map(contact => (
-          <ContactItem
-            contact={contact}
-            onDeleteContact={onDeleteContact}
-            key={contact.id}
-          />
-        ))}
-      </ul>
-    );
-  } else if (error) {
-    return (
-      <div>
-        {error && <h2>{error.message}</h2>}
-        <p>oops... There is an error!</p>
-      </div>
-    );
-  } else {
-    return (
-      <div>
-        <p>Sorry... There is no contacts :(</p>
-        <Loader />
-      </div>
-    );
+  const filter = useSelector(getFilter);
+  const { contacts, isFetching, isError, error } = useGetContactsQuery(
+    undefined,
+    {
+      selectFromResult: ({ data, isFetching, isError, error }) => ({
+        contacts: data && getVisibleContacts(data, filter),
+        isFetching,
+        isError,
+        error,
+      }),
+    }
+  );
+
+  const [deleteContact] = useDeleteContactMutation();
+  const onDeleteContact = id => deleteContact(id);
+  let contactList = null;
+
+  if (contacts) {
+    if (contacts.length === 0)
+      contactList = <p className={s.text}>No contacts to show</p>;
+    else
+      contactList = contacts.map(contact => (
+        <ContactItem
+          contact={contact}
+          onDeleteContact={onDeleteContact}
+          key={contact.id}
+        />
+      ));
   }
+  return (
+    <div>
+      {isError && <p>{error.data}</p>}
+      {contactList}
+      {isFetching && <Loader />}
+    </div>
+  );
 };
 
 export default ContactList;

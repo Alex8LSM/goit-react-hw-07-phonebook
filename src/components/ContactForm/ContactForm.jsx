@@ -1,15 +1,19 @@
 import { useState } from 'react';
 import { nanoid } from 'nanoid';
-import { useSelector, useDispatch } from 'react-redux';
-import { getContacts } from '../../redux/selectors';
-import { addContact } from '../../redux/operations';
+import {
+  useAddContactMutation,
+  useGetContactsQuery,
+} from '../../api/contactsApi';
+import { toast } from 'react-toastify';
 import s from './ContactForm.module.css';
 
 function ContactForm() {
-  const contacts = useSelector(getContacts);
-  const dispatch = useDispatch();
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
+  const [addContact, { isLoading }] = useAddContactMutation();
+  const { data: contacts } = useGetContactsQuery(undefined, {
+    skip: name === '',
+  });
 
   const nameId = nanoid();
   const phoneId = nanoid();
@@ -34,13 +38,14 @@ function ContactForm() {
       contact => contact[field].toLowerCase() === value.toLowerCase()
     );
 
-  const handleSubmit = event => {
+  const handleSubmit = async event => {
     event.preventDefault();
 
-    if (checkContact('name', name)) alert(`${name} is already added.`);
-    else if (checkContact('phone', phone)) alert(`${phone} is already added.`);
+    if (checkContact('name', name)) toast.error(`${name} is already added.`);
+    else if (checkContact('phone', phone))
+      toast.error(`${phone} is already added.`);
     else {
-      dispatch(addContact(name, phone));
+      await addContact({ name, phone });
       setName('');
       setPhone('');
     }
@@ -78,7 +83,7 @@ function ContactForm() {
           />
         </label>
 
-        <button className={s.button} type="submit">
+        <button className={s.button} disabled={isLoading} type="submit">
           Add contact
         </button>
       </form>

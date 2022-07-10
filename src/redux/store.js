@@ -8,18 +8,24 @@ import {
   REGISTER,
 } from 'redux-persist';
 import reducers from './reducers';
+import { contactsApi } from '../api/contactsApi';
 
-const middleware = getDefaultMiddleware =>
-  getDefaultMiddleware({
+const middleware = getDefaultMiddleware => [
+  ...getDefaultMiddleware({
     serializableCheck: {
       ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
     },
-  });
+  }),
+  contactsApi.middleware,
+];
 
-export const store = configureStore({
+const store = configureStore({
   reducer: {
+    [contactsApi.reducerPath]: contactsApi.reducer,
     contacts: reducers,
   },
   middleware,
   devTools: process.env.NODE_ENV === 'development',
 });
+
+export { store };
