@@ -4,7 +4,8 @@ import {
   useAddContactMutation,
   useGetContactsQuery,
 } from '../../api/contactsApi';
-import { toast } from 'react-toastify';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import s from './ContactForm.module.css';
 
 function ContactForm() {
@@ -53,6 +54,17 @@ function ContactForm() {
 
   return (
     <>
+      <ToastContainer
+        position="top-center"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
       <form className={s.form} onSubmit={handleSubmit}>
         <label className={s.label}>
           <span className={s.labelTitle}>Name</span>
